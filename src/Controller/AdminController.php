@@ -11,6 +11,9 @@ use App\Form\AuthorFormType;
 use App\Entity\BlogPost;
 use App\Form\EntryFormType;
 
+/**
+ * @Route("/admin")
+ */
 class AdminController extends Controller
 {
     /** @var EntityManagerInterface */
@@ -33,7 +36,7 @@ class AdminController extends Controller
     }
 
     /**
-     * @Route("/admin/author/create", name="author_create")
+     * @Route("/author/create", name="author_create")
      */
     public function createAuthorAction(Request $request)
     {
@@ -94,6 +97,27 @@ class AdminController extends Controller
 
         return $this->render('admin/entry_form.html.twig', [
             'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/", name="admin_index")
+     * @Route("/entries", name="admin_entries")
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function entriesAction()
+    {
+        $author = $this->authorRepository->findOneByUsername($this->getUser()->getUserName());
+
+        $blogPosts = [];
+
+        if ($author) {
+            $blogPosts = $this->blogPostRepository->findByAuthor($author);
+        }
+
+        return $this->render('admin/entries.html.twig', [
+            'blogPosts' => $blogPosts
         ]);
     }
 }
